@@ -2,9 +2,18 @@
 ## Introduction
 I have an Avantco IC3500 induction heater, a Raspberry Pi 3b with a 3.5 inch touchscreen, and a set of DS1820 Temperature Sensors. I used to use [CraftBeerPi](http://web.craftbeerpi.com/ttps://www.google.com) with that setup, which is a good resource and worked well with the heating element approach. However, I downsized my brewing setup and went to induction because it's cool technology. 
 After reading through [these plans](https://www.homebrewtalk.com/threads/will-this-cheap-3500-watt-induction-burner-work.301722/page-23#post-7907790) I decided to give it a shot. I already had the Raspberry Pi sitting around with the screen so I gave it a shot. I picked up an optocoupler board to control the (+) and (-) buttons on the induction heater.
-I'm an amateur at everything that is happening but I wanted to provide my code and document my work here!
 
 This software provides a kiosk like experience on the 3.5 inch touchscreen with a readout for the current temperature and a keyboard onscreen to set the target temperature. This also provides a server where you can interact from local webpages to check and set temperature as well. 
+
+![piscreen](https://github.com/eamwind/BrewControlPi/assets/172992640/25c28860-f623-4287-8b4b-72b90f89dbe8)
+
+The kiosk screen!
+
+![webcap](https://github.com/eamwind/BrewControlPi/assets/172992640/1ffdf709-a671-47ad-9104-0afb8d983718)
+
+Interacting with the web page!
+
+I'm an amateur at everything that is happening but I wanted to provide my code and document my work anyway.
 
 ## "Modding" the induction heater
 Install a set of wires on the (+) and (-) buttons. This is also done [here.](https://www.homebrewtalk.com/threads/will-this-cheap-3500-watt-induction-burner-work.301722/page-23#post-7907790)
