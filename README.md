@@ -4,6 +4,8 @@ I have an Avantco IC3500 induction heater, a Raspberry Pi 3b with a 3.5 inch tou
 After reading through [these plans](https://www.homebrewtalk.com/threads/will-this-cheap-3500-watt-induction-burner-work.301722/page-23#post-7907790) I decided to give it a shot. I already had the Raspberry Pi sitting around with the screen so I gave it a shot. I picked up an optocoupler board to control the (+) and (-) buttons on the induction heater.
 I'm an amateur at everything that is happening but I wanted to provide my code and document my work here!
 
+This software provides a kiosk like experience on the 3.5 inch touchscreen with a readout for the current temperature and a keyboard onscreen to set the target temperature. This also provides a server where you can interact from local webpages to check and set temperature as well. 
+
 ## "Modding" the induction heater
 Install a set of wires on the (+) and (-) buttons. This is also done [here.](https://www.homebrewtalk.com/threads/will-this-cheap-3500-watt-induction-burner-work.301722/page-23#post-7907790)
 
@@ -34,11 +36,26 @@ sudo apt install python3 idle3 php7.4 php7.4-fpm lighttpd
 lighttpd-enable-mod fastcgi
 ```
 
-I may be missing some required stuff here.
+I may be missing some required stuff here...
 Probably best to reboot at this point, but you can also do
 
 ```bash
 sudo lighttpd force-reload
 ```
+
+Now to set up the actual software!
+To use the 3.5" display I bought from AliExpress, I used [this excellent resource.](https://github.com/lcdwiki/LCD-show-ubuntu) Your mileage may vary.
+From python, you need customtkinter, tkinter, pillow and RPi. The only odd thing here is [customtkinter.](https://customtkinter.tomschimansky.com/)
+The provided index.php should go into /var/www/html and you need to delete the index.html that is in there. 
+For the python script and images, I keep it in my /home/pi/ folder, if you want to change these folders you need to change the associated variables in the python script/ php file.
+You can always run the script manually off the pi or have it start with boot with systemd or crontab. What ended up working for me, I don't know why it was the only way, but I saved a bash file to the desktop that just has the line to start the PiDisplay.py script.
+
+```bash
+#!/bin/bash
+/usr/bin/python3 /home/pi/PiDisplay.py
+```
+
+So this is my experience, remembering that I made this work for my hardware 
+
 
 
