@@ -48,14 +48,26 @@ To use the 3.5" display I bought from AliExpress, I used [this excellent resourc
 From python, you need customtkinter, tkinter, pillow and RPi. The only odd thing here is [customtkinter.](https://customtkinter.tomschimansky.com/)
 The provided index.php should go into /var/www/html and you need to delete the index.html that is in there. 
 For the python script and images, I keep it in my /home/pi/ folder, if you want to change these folders you need to change the associated variables in the python script/ php file.
-You can always run the script manually off the pi or have it start with boot with systemd or crontab. What ended up working for me, I don't know why it was the only way, but I saved a bash file to the desktop that just has the line to start the PiDisplay.py script.
+You can always run the script manually off the pi or have it start with boot with systemd or crontab. What ended up working for me, I don't know why it was the only way, but I saved a bash file to the desktop called Startup.sh that just has the line to start the PiDisplay.py script.
 
 ```bash
 #!/bin/bash
 /usr/bin/python3 /home/pi/PiDisplay.py
 ```
 
-So this is my experience, remembering that I made this work for my hardware 
+And then having the script called from crontab on startup. So in the terminal
+
+```bash
+sudo crontab -e
+```
+
+and in the editor put the line 
+
+```
+@reboot /bin/bash /home/pi/Desktop/Startup.sh
+```
+
+So this is my experience, remembering that I made this work for my hardware. Hopefully this helps someone else on their project though!
 
 
 
