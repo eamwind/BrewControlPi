@@ -23,7 +23,7 @@ As for controlling the buttons, I used a board with two optocouplers on it for s
 
 ![Screenshot 2024-06-16 124010](https://github.com/eamwind/BrewControlPi/assets/172992640/798b10cf-4df5-4696-91bd-3ed12bb21ac0)
 
-Wiring this up, 3.3V to VCC, ground to ground, GPIO 16 and 20 to IN1 and IN2, and 5V to JD-VCC. 
+Wiring this up, 3.3V to VCC, ground to ground, GPIO 16 and 20 to IN1 and IN2, and 5V to JD-VCC. You need to remove the jumper on JD-VCC. There are some really good wiring diagrams and instructions on using these optocouplers online that I recommend getting into. 
 
 ## Software
 I started with unmodified Rasbpian flashed to an SD card, and then started in on it. 
