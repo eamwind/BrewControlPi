@@ -18,9 +18,24 @@ Wiring the Raspberry Pi requires some creative work assuming you're also using t
 I recommend going through [someone else's wiring tutorial](https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/) for the temperature sensor. There are good ones on the internet, and you can test your sensors first. 
 I connected 3.3V, ground and GPIO 21 to the correct wires on the temperature sensors.
 As for controlling the buttons, I used a board with two optocouplers on it for simplicity. The couplers are JQC-3FF-S-Z. Importantly they are 5v controllable. 
+
 ![Screenshot 2024-06-16 124010](https://github.com/eamwind/BrewControlPi/assets/172992640/798b10cf-4df5-4696-91bd-3ed12bb21ac0)
 Wiring this up, 3.3V to VCC, ground to ground, GPIO 16 and 20 to IN1 and IN2, and 5V to JD-VCC. 
 
 ## Software
 I started with unmodified Rasbpian flashed to an SD card, and then started in on it. 
-I am 100% missing some parts but I don't want to go through it again to remember. First, [I set up the DS1820 sensors via software](https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/). Then I installed python, lighttpd with fastcgi-mod, and php 7.4. 
+I am 100% missing some parts but I don't want to go through it again to remember. First, [I set up the DS1820 sensors via software](https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/). Then I installed python 3, lighttpd with fastcgi-mod, and php 7.4. Installing from the command line on the raspberry pi 
+
+'''bash
+sudo apt install python3 idle3 php7.4 php7.4-fpm lighttpd
+lighttpd-enable-mod fastcgi
+'''
+
+I may be missing some required stuff here.
+Probably best to reboot at this point, but you can also do
+
+'''bash
+sudo lighttpd force-reload
+'''
+
+
