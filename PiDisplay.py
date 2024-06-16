@@ -72,7 +72,7 @@ img_off = 'f'
 hogval = 0
 celsius = False
 phpfile = '/var/www/html/temps.txt'
-temphistory = '/home/edwin/temphistory.txt'
+temphistory = '/home/pi/temphistory.txt'
 
 # Custom widget for the numpad input
 class TempNumpad(ctk.CTkFrame):
