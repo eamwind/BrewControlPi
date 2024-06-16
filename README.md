@@ -8,10 +8,12 @@ I'm an amateur at everything that is happening but I wanted to provide my code a
 Install a set of wires on the (+) and (-) buttons. This is also done [here.](https://www.homebrewtalk.com/threads/will-this-cheap-3500-watt-induction-burner-work.301722/page-23#post-7907790)
 
 ![BottomScrews](https://github.com/eamwind/BrewControlPi/assets/172992640/a5c21314-e17a-40d9-aae4-1db99e831fe4)
+
 Remove the screws here. There's a cable connecting the interface board with the rest of the machine, so you can carefully lift off the bottom and place it on the side or you can disconnect the cable.
 
 ![PXL_20240616_170152239](https://github.com/eamwind/BrewControlPi/assets/172992640/5c2ee3c2-1afa-4798-8add-4135bf9f21aa)
-Now you can solder three wires, one for each button and one for the neutral. It's a really good idea to be careful here and don't short the board. Check circuit continuity and the function of the buttons with a multimeter.
+
+Now you can solder three wires, one for each button and one for the neutral.  It's a really good idea to be careful here and don't short the board. Check circuit continuity and the function of the buttons with a multimeter.
 
 ## Hardware wiring
 Wiring the Raspberry Pi requires some creative work assuming you're also using the 3.5" LCD screen. You need the 5v, 3.3v, ground, and 3 data pins. I used pins 36, 38, and 40, or GPIO 16,20, and 21. I'll be using their GPIO numbers. GPIO 16 is for the (+) button, GPIO 20 is for the (-) button, and GPIO 21 is for the DS1820 temperature sensor.
@@ -20,6 +22,7 @@ I connected 3.3V, ground and GPIO 21 to the correct wires on the temperature sen
 As for controlling the buttons, I used a board with two optocouplers on it for simplicity. The couplers are JQC-3FF-S-Z. Importantly they are 5v controllable. 
 
 ![Screenshot 2024-06-16 124010](https://github.com/eamwind/BrewControlPi/assets/172992640/798b10cf-4df5-4696-91bd-3ed12bb21ac0)
+
 Wiring this up, 3.3V to VCC, ground to ground, GPIO 16 and 20 to IN1 and IN2, and 5V to JD-VCC. 
 
 ## Software
