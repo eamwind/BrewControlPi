@@ -29,16 +29,16 @@ Wiring this up, 3.3V to VCC, ground to ground, GPIO 16 and 20 to IN1 and IN2, an
 I started with unmodified Rasbpian flashed to an SD card, and then started in on it. 
 I am 100% missing some parts but I don't want to go through it again to remember. First, [I set up the DS1820 sensors via software](https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/). Then I installed python 3, lighttpd with fastcgi-mod, and php 7.4. Installing from the command line on the raspberry pi 
 
-'''bash
+```bash
 sudo apt install python3 idle3 php7.4 php7.4-fpm lighttpd
 lighttpd-enable-mod fastcgi
-'''
+```
 
 I may be missing some required stuff here.
 Probably best to reboot at this point, but you can also do
 
-'''bash
+```bash
 sudo lighttpd force-reload
-'''
+```
 
 
