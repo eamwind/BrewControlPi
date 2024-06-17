@@ -6,16 +6,44 @@ import glob
 import time
 from RPi import GPIO
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(16, GPIO.OUT)
-GPIO.setup(20, GPIO.OUT)
-GPIO.output(16,GPIO.HIGH)
-GPIO.output(20,GPIO.HIGH)
+# Sets the appearance of the window
+# Supported modes : Light, Dark, System
+# "System" sets the appearance mode to 
+# the appearance mode of the system
+ctk.set_appearance_mode("Dark") 
 
+# Sets the color of the widgets in the window
+# Supported themes : green, dark-blue, blue 
+ctk.set_default_color_theme("blue") 
+
+# Set a bunch of variables that might be useful to change
+appWidth, appHeight = 480, 320 #window dimensions should be screen dimensions, in pixels
+wattage = 3 # which step, in the wattages list, the wattage is set to initially
+wattages = [500,700,1000,1200,1400,1600,1800,2000,2300,2600,3000,3200,3500] #list of all wattages to cycle through
+temp_range = 5 # We can't apply a PWM here so this is just the "happy range"
+is_on = False # When the application opens, we want it off
+img_on = 'o' # placeholders
+img_off = 'f'
+hogval = 0
+celsius = False # Set to true to switch to celsius, not 100% sure this will work
+phpfile = '/var/www/html/temps.txt' # location of the file which is shared with the webserver
+temphistory = '/home/edwin/temphistory.txt' #location of the file that will record the temperature history
+increasepin = 16
+decreasepin = 20
+
+#Setup GPIO pins for controlling the buttons
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(increasepin, GPIO.OUT)
+GPIO.output(increasepin,GPIO.HIGH)
+GPIO.setup(decreasepin, GPIO.OUT)
+GPIO.output(decreasepin,GPIO.HIGH)
+
+# Important for using my display
 if os.environ.get('DISPLAY','') == '':
     #print('no display found. Using :0.0')
     os.environ.__setitem__('DISPLAY', ':0.0')
 
+# Setup accessing the temperature sensor
 devices = glob.glob("/sys/bus/w1/devices/" + "28*")
 def read_temp(proben, decimals = 1):
     probe = devices[proben] + "/w1_slave"
@@ -32,15 +60,17 @@ def read_temp(proben, decimals = 1):
     return(tempc, tempf)
 
 def increase_wattage():
-    GPIO.output(16,GPIO.LOW)
+    GPIO.output(increasepin,GPIO.LOW)
     time.sleep(0.5)
-    GPIO.output(16,GPIO.HIGH)
+    GPIO.output(increasepin,GPIO.HIGH)
 
 def decrease_wattage():
-    GPIO.output(20,GPIO.LOW)
+    GPIO.output(decreasepin,GPIO.LOW)
     time.sleep(0.5)
-    GPIO.output(20,GPIO.HIGH)
+    GPIO.output(decreasepin,GPIO.HIGH)
+
 '''
+these are useful for testing without being on the hardware connected to everything
 def read_temp(proben, decimals = 1):
     return(100.0,212.0)
 
@@ -51,30 +81,7 @@ def decrease_wattage():
     time.sleep(0.5)
 '''
 
-# Sets the appearance of the window
-# Supported modes : Light, Dark, System
-# "System" sets the appearance mode to 
-# the appearance mode of the system
-ctk.set_appearance_mode("Dark") 
-
-# Sets the color of the widgets in the window
-# Supported themes : green, dark-blue, blue 
-ctk.set_default_color_theme("blue") 
-
-# Dimensions of the window
-appWidth, appHeight = 480, 320
-wattage = 3
-wattages = [500,700,1000,1200,1400,1600,1800,2000,2300,2600,3000,3200,3500]
-temp_range = 5
-is_on = False
-img_on = 'o'
-img_off = 'f'
-hogval = 0
-celsius = False
-phpfile = '/var/www/html/temps.txt'
-temphistory = '/home/edwin/temphistory.txt'
-
-# Custom widget for the numpad input
+# Custom widget for the numpad input and target temperature
 class TempNumpad(ctk.CTkFrame):
     def __init__(self, *args, width: int = 70, height: int = 70, step_size=1, command: callable = None, **kwargs):
         super().__init__(*args, width=5, height=5, **kwargs)
@@ -185,7 +192,7 @@ class TempNumpad(ctk.CTkFrame):
         self.entry.insert(0, str(float(value)))
 
 
-# App Class
+# Whole app class
 class App(ctk.CTk):
     def getCurTemp(self, unitc):
         #global temp
@@ -222,7 +229,7 @@ class App(ctk.CTk):
             self.curTempVal.configure(text=str(current_temp)+"°F" )
 
         # Write current temperatures to history file
-        histvalues = '\n'+str(time.gmtime()) + ', ' + str(set_temp) +', '+str(current_temp)
+        histvalues = '\n'+str(time.asctime()) + ', ' + str(set_temp) +', '+str(current_temp)
         out = open(temphistory, "a")
         out.write(histvalues)
         out.close()
@@ -299,8 +306,7 @@ class App(ctk.CTk):
 
         self.nupdate()
 
-# Setting up for automation switch
-# Define our switch function
+# Setting up for on/off switch
 def switch():
     global is_on
     global img_on
@@ -315,9 +321,12 @@ def switch():
         app.on_button.configure(image = img_on, fg_color="Green")
         is_on = True
 
+
+
 if __name__ == "__main__":
     #Overwrite temphistory and temps file
     nf = open(temphistory,'w')
+    nf.write('Time, Target Temperature, Current Temperature')
     nf.close()
     nfi = open(phpfile, 'w')
     nfi.write('70.0\n70.0\nlocal')
@@ -337,33 +346,3 @@ if __name__ == "__main__":
     # Runs the app
     app.wm_attributes('-fullscreen', True)
     app.mainloop()
-
-'''
-def initializeit():
-    global img_on
-    global img_off
-    global app
-    
-    app = App()
-
-    #Grab images
-    img_on = ctk.CTkImage(Image.open("on.png"), size=(75, 30))
-    img_off = ctk.CTkImage(Image.open("off.png"), size=(75, 30))
-
-    # On/Off Button
-    app.on_button = ctk.CTkButton(app, text= '', image = img_off, command = switch, width = 100, height = 70, fg_color="Red", hover = False)
-    app.on_button.grid(row=1, column=2, padx=20, pady=10, sticky="ew")
-
-    # Runs the app
-    app.wm_attributes('-fullscreen', True)
-    app.mainloop()
-
-if __name__ == "__main__":
-    #time.sleep(15)
-    while True:
-        try:
-            initializeit()
-            break
-        except Exception as e:
-            time.sleep(1)
-'''
