@@ -1,7 +1,7 @@
 # BrewControlPi
 ## Introduction
-I have an Avantco IC3500 induction heater, a Raspberry Pi 3b with a 3.5 inch touchscreen, and a set of DS1820 Temperature Sensors. I used to use [CraftBeerPi](http://web.craftbeerpi.com/ttps://www.google.com) with that setup, which is a good resource and worked well with the heating element approach. However, I downsized my brewing setup and went to induction because it's cool technology. 
-After reading through [these plans](https://www.homebrewtalk.com/threads/will-this-cheap-3500-watt-induction-burner-work.301722/page-23#post-7907790) I decided to give it a shot. I already had the Raspberry Pi sitting around with the screen so I gave it a shot. I picked up an optocoupler board to control the (+) and (-) buttons on the induction heater.
+I have an Avantco IC3500 induction heater, a Raspberry Pi 3b with a 3.5 inch touchscreen, and a set of DS18B20 Temperature Sensors. I used to use [CraftBeerPi](http://web.craftbeerpi.com/ttps://www.google.com) with that setup, which is a good resource and worked well with the heating element approach. However, I downsized my brewing setup and went to induction because it's cool technology. 
+After reading through [these plans](https://www.homebrewtalk.com/threads/will-this-cheap-3500-watt-induction-burner-work.301722/page-23#dspost-7907790) I decided to give it a shot. I already had the Raspberry Pi sitting around with the screen so I gave it a shot. I picked up an optocoupler board to control the (+) and (-) buttons on the induction heater.
 
 This software provides a kiosk like experience on the 3.5 inch touchscreen with a readout for the current temperature and a keyboard onscreen to set the target temperature. This also provides a server where you can interact from local webpages to check and set temperature as well. 
 
@@ -33,8 +33,8 @@ Wiring the Raspberry Pi requires some creative work assuming you're also using t
 
 This image has the screen removed for clarity.
 
-Honestly if you're buying stuff new, maybe go with a screen that connects through hdmi and usb. You need the 5v, 3.3v, ground, and 3 data pins. I used pins 36, 38, and 40, or GPIO 16,20, and 21. I'll be using their GPIO numbers. GPIO 16 is for the (+) button, GPIO 20 is for the (-) button, and GPIO 21 is for the DS1820 temperature sensor.
-I recommend going through [someone else's wiring tutorial](https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/) for the temperature sensor. There are good ones on the internet, and you can test your sensors first. 
+Honestly if you're buying stuff new, maybe go with a screen that connects through hdmi and usb. You need the 5v, 3.3v, ground, and 3 data pins. I used pins 36, 38, and 40, or GPIO 16,20, and 21. I'll be using their GPIO numbers. GPIO 16 is for the (+) button, GPIO 20 is for the (-) button, and GPIO 21 is for the DS18B20 temperature sensor.
+I recommend going through [someone else's wiring tutorial](https://www.circuitbasics.com/raspberry-pi-DS18B20-temperature-sensor-tutorial/) for the temperature sensor. There are good ones on the internet, and you can test your sensors first. 
 I connected 3.3V, ground and GPIO 21 to the correct wires on the temperature sensors.
 As for controlling the buttons, I used a board with two optocouplers on it for simplicity. The couplers are JQC-3FF-S-Z. Importantly they are 5v controllable. 
 
@@ -49,7 +49,7 @@ I added a pair of barrel jacks so I can disconnect the induction plate from the 
 
 ## Software
 I started with unmodified Rasbpian flashed to an SD card, and then started in on it. 
-I am 100% missing some parts but I don't want to go through it again to remember. First, [I set up the DS1820 sensors via software](https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/). Then I installed python 3, lighttpd with fastcgi-mod, and php 7.4. Installing from the command line on the raspberry pi 
+I am 100% missing some parts but I don't want to go through it again to remember. First, [I set up the DS18B20 sensors via software](https://www.circuitbasics.com/raspberry-pi-DS18B20-temperature-sensor-tutorial/). Then I installed python 3, lighttpd with fastcgi-mod, and php 7.4. Installing from the command line on the raspberry pi 
 
 ```bash
 sudo apt install python3 idle3 php7.4 php7.4-fpm lighttpd
