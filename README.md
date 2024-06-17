@@ -27,7 +27,9 @@ Remove the screws here. There's a cable connecting the interface board with the 
 Now you can solder three wires, one for each button and one for the neutral.  It's a really good idea to be careful here and don't short the board. Check circuit continuity and the function of the buttons with a multimeter.
 
 ## Hardware wiring
-Wiring the Raspberry Pi requires some creative work assuming you're also using the 3.5" LCD screen. You need the 5v, 3.3v, ground, and 3 data pins. I used pins 36, 38, and 40, or GPIO 16,20, and 21. I'll be using their GPIO numbers. GPIO 16 is for the (+) button, GPIO 20 is for the (-) button, and GPIO 21 is for the DS1820 temperature sensor.
+Wiring the Raspberry Pi requires some creative work assuming you're also using the 3.5" LCD screen. The screen uses pins 1-26 so you need to share the 5v and 3.3v pins. I accomplished this with homemade connectors lying flat between the pins and the fat connector. I also 3d printed a connector for the remaining pins to hold everything together in the little project box.`1QWDX
+
+Honestly if you're buying stuff new, maybe go with a screen that connects through hdmi and usb. You need the 5v, 3.3v, ground, and 3 data pins. I used pins 36, 38, and 40, or GPIO 16,20, and 21. I'll be using their GPIO numbers. GPIO 16 is for the (+) button, GPIO 20 is for the (-) button, and GPIO 21 is for the DS1820 temperature sensor.
 I recommend going through [someone else's wiring tutorial](https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/) for the temperature sensor. There are good ones on the internet, and you can test your sensors first. 
 I connected 3.3V, ground and GPIO 21 to the correct wires on the temperature sensors.
 As for controlling the buttons, I used a board with two optocouplers on it for simplicity. The couplers are JQC-3FF-S-Z. Importantly they are 5v controllable. 
@@ -75,6 +77,9 @@ and in the editor put the line
 ```
 @reboot /bin/bash /home/pi/Desktop/Startup.sh
 ```
+
+## Use
+I chose to only connect to the two buttons, meaning that this interface cannot turn the heater on and off and you have to manually turn the plate on and set it to heat via wattage beforehand. The lowest setting, at 500 watts, it low enough that it seems fine for me. You could run wires for all the buttons, but it didn't seem worth the risk to me. In that case you can easily implement that in the python code, adding more GPIO lanes. 
 
 So this is my experience, remembering that I made this work for my hardware. Hopefully this helps someone else on their project though!
 
