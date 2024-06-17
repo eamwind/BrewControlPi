@@ -30,9 +30,8 @@ function constReload(){
 constReload()
 </script>
 
-
 <?php
-  if ((isset($_POST['sendbutton']) && (isset($_POST['newset'])))){
+  if (isset($_POST['sendbutton']) && (is_numeric($_POST['newset'])>0)){
     $newfile = ($_COOKIE['currenttemperature']."\n".$_POST['newset']."\nweb");
     $handle = fopen("temps.txt", 'w'); 
     fwrite($handle,$newfile); 
