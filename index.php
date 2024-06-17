@@ -17,6 +17,7 @@ function loadTemps() {
       settemp = lines[1];
       document.getElementById("ctemp").innerHTML = curtemp;
       document.getElementById("stemp").innerHTML = settemp;
+      document.cookie="currenttemperature=".concat(curtemp);
     }
   };
   xhttp.open("GET", "temps.txt", true);
@@ -29,9 +30,10 @@ function constReload(){
 constReload()
 </script>
 
+
 <?php
   if ((isset($_POST['sendbutton']) && (isset($_POST['newset'])))){
-    $newfile = ("0.0\n".$_POST['newset']."\nweb");
+    $newfile = ($_COOKIE['currenttemperature']."\n".$_POST['newset']."\nweb");
     $handle = fopen("temps.txt", 'w'); 
     fwrite($handle,$newfile); 
     fclose($handle);
