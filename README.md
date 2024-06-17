@@ -89,6 +89,8 @@ and in the editor put the line
 
 ## Use
 I chose to only connect to the two buttons, meaning that this interface cannot turn the heater on and off and you have to manually turn the plate on and set it to heat via wattage beforehand. The lowest setting, at 500 watts, it low enough that it seems fine for me. You could run wires for all the buttons, but it didn't seem worth the risk to me. In that case you can easily implement that in the python code, adding more GPIO lanes. 
+For the kiosk display: the big number on the top left is the current temperature, the target temperature is on the bottom left with the keypad for changing it. The number on the top right is the current wattage, it should correspond with whats shown on the screen of the induction heater. The on/off button determines whether the control is on/off, not the heat! This means that when you turn it off, the induction heater will just hold the current heat. To turn off the heater turn it down with the button. Finally the chunky exit button is self explanatory.
+
 
 So this is my experience, remembering that I made this work for my hardware. Hopefully this helps someone else on their project though!
 
