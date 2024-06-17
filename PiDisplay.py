@@ -72,7 +72,7 @@ img_off = 'f'
 hogval = 0
 celsius = False
 phpfile = '/var/www/html/temps.txt'
-temphistory = '/home/pi/temphistory.txt'
+temphistory = '/home/edwin/temphistory.txt'
 
 # Custom widget for the numpad input
 class TempNumpad(ctk.CTkFrame):
@@ -230,11 +230,15 @@ class App(ctk.CTk):
         #Check php file for web updates
         inp = open(phpfile, 'r')
         phpcur, phpset, recentset = inp.read().splitlines()
-        phpcur = float(phpcur)
-        phpset = float(phpset)
-        if recentset == 'web':
-            set_temp = phpset
-            self.setTempVal.set(set_temp)
+        try:
+            phpcur = float(phpcur)
+            phpset = float(phpset)
+        except:
+            pass
+        else:
+            if recentset == 'web':
+                set_temp = phpset
+                self.setTempVal.set(set_temp)
         inp.close()
         inp = open(phpfile, 'w')
         inp.write((str(current_temp)+'\n'+str(set_temp)+'\n'+'local'))
