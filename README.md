@@ -27,7 +27,11 @@ Remove the screws here. There's a cable connecting the interface board with the 
 Now you can solder three wires, one for each button and one for the neutral.  It's a really good idea to be careful here and don't short the board. Check circuit continuity and the function of the buttons with a multimeter.
 
 ## Hardware wiring
-Wiring the Raspberry Pi requires some creative work assuming you're also using the 3.5" LCD screen. The screen uses pins 1-26 so you need to share the 5v and 3.3v pins. I accomplished this with homemade connectors lying flat between the pins and the fat connector. I also 3d printed a connector for the remaining pins to hold everything together in the little project box.`1QWDX
+Wiring the Raspberry Pi requires some creative work assuming you're also using the 3.5" LCD screen. The screen uses pins 1-26 so you need to share the 5v and 3.3v pins. I accomplished this with homemade connectors lying flat between the pins and the fat connector. I also 3d printed a connector for the remaining pins to hold everything together in the little project box.
+
+![PXL_20240617_160620976](https://github.com/eamwind/BrewControlPi/assets/172992640/b2f95a76-7016-42ce-9f3e-3dee77693a55)
+
+This image has the screen removed for clarity.
 
 Honestly if you're buying stuff new, maybe go with a screen that connects through hdmi and usb. You need the 5v, 3.3v, ground, and 3 data pins. I used pins 36, 38, and 40, or GPIO 16,20, and 21. I'll be using their GPIO numbers. GPIO 16 is for the (+) button, GPIO 20 is for the (-) button, and GPIO 21 is for the DS1820 temperature sensor.
 I recommend going through [someone else's wiring tutorial](https://www.circuitbasics.com/raspberry-pi-ds18b20-temperature-sensor-tutorial/) for the temperature sensor. There are good ones on the internet, and you can test your sensors first. 
@@ -37,6 +41,11 @@ As for controlling the buttons, I used a board with two optocouplers on it for s
 ![Screenshot 2024-06-16 124010](https://github.com/eamwind/BrewControlPi/assets/172992640/798b10cf-4df5-4696-91bd-3ed12bb21ac0)
 
 Wiring this up, 3.3V to VCC, ground to ground, GPIO 16 and 20 to IN1 and IN2, and 5V to JD-VCC. You need to remove the jumper on JD-VCC. There are some really good wiring diagrams and instructions on using these optocouplers online that I recommend getting into. 
+
+I added a pair of barrel jacks so I can disconnect the induction plate from the raspberry pi. If you have these kinds of connectors lying around it seems like a good idea to do.
+
+![PXL_20240617_161437483](https://github.com/eamwind/BrewControlPi/assets/172992640/529a91e2-dfd1-4541-9194-f6a926b22faa)
+
 
 ## Software
 I started with unmodified Rasbpian flashed to an SD card, and then started in on it. 
