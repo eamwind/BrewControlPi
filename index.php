@@ -3,9 +3,9 @@
 
 <body>
 Current Temp:  <output id="ctemp" display=inline></output>
-<?php echo " °F<br>";?>
+<?php echo " °<br>";?>
 Set Temp:  <output id="stemp" display=inline></output>
-<?php echo " °F<br>";?>
+<?php echo " °<br>";?>
 
 <script>
 function loadTemps() {
