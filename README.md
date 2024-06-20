@@ -87,11 +87,17 @@ and in the editor put the line
 ```
 
 ## Use
-I chose to only connect to the two buttons, meaning that this interface cannot turn the heater on and off and you have to manually turn the plate on and set it to heat via wattage beforehand. The lowest setting, at 500 watts, it low enough that it seems fine for me. You could run wires for all the buttons, but it didn't seem worth the risk to me. In that case you can easily implement that in the python code, adding more GPIO lanes. 
+The "500" wattage rating provides more heat than I expected. I assumed that while it claimed to hold a 140F temperature, it wouldn't be nearly that high with a 10 gallon kettle. For this reason, if you want to go with mashes that are below ~140F you're going to need to go to 4 optocouplers connected to the power and heat/hold buttons as well as (+) and (-). You'll also need to implement this in code yourself, we'll see if I get around to it.
 For the kiosk display: the big number on the top left is the current temperature, the target temperature is on the bottom left with the keypad for changing it. The number on the top right is the current wattage, it should correspond with whats shown on the screen of the induction heater. The on/off button determines whether the control is on/off, not the heat! This means that when you turn it off, the induction heater will just hold the current heat. To turn off the heater turn it down with the button. Finally the chunky exit button is self explanatory.
+
 
 
 So this is my experience, remembering that I made this work for my hardware. Hopefully this helps someone else on their project though!
 
+
+## Todo
+Implement control for turning the heat on and off. 
+Add PID control -- looking into it looks like there's a lot more information and easy ways to apply a PID to this and that would be better. Tuning is gonna be a real effort though. 
+Allow you to turn on/off the control from the web app, I feel like I'm actually missing this.
 
 
