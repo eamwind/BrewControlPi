@@ -93,11 +93,9 @@ Interacting with the web app:
 
 ![image](https://github.com/eamwind/BrewControlPi/assets/172992640/66db7242-2a88-4548-ba54-f67c86f0d172)
 
-The current and setpoint temperature are pretty self-explanatory, these values are updated roughly every second
-An input to change the setpoint temperature and on/off status:
-  To change setpoint temperature or on/off status you need to put in a setpoint temperature and either have the checkbox checked (to turn automation on) or unchecked (to turn automation off)
-The readout for the automation being on or off
-
+The current and setpoint temperature are pretty self-explanatory, these values are updated roughly every second.
+The rest is less clear. We have a button called "Set" which we press to actually send a new setpoint and on/off status and the text box for the new setpoint beside it.
+The checkbox indicates whether we want automation (automatically changing the power level of the avantco) on or off. Both of these are sent by hitting "Set" and you need to put in a setpoint value. 
 
 ## Modifications
 First: the PID tuning values are going to be specific to your own machine, in PiDisplay.py, line 36, pid_values has the P, I and D values in a list for you to mess with. I do not have autotuning, it would take an AGE with the response speed. 
