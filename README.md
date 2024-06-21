@@ -67,7 +67,7 @@ Now to set up the actual software!
 To use the 3.5" display I bought from AliExpress, I used [this excellent resource.](https://github.com/lcdwiki/LCD-show-ubuntu) Your mileage may vary.
 From python, you need customtkinter, tkinter, pillow and RPi. The only odd thing here is [customtkinter.](https://customtkinter.tomschimansky.com/)
 The provided index.php should go into /var/www/html and you need to delete the index.html that is in there. 
-For the python script and images, I keep it in my /home/pi/ folder, if you want to change these folders you need to change the associated variables in the python script/ php file.
+For the python script and images, I keep it in my /home/pi/ folder (or whatever username you're using), if you want to change these folders you need to change the associated variables in the python script/ php file and make sure things are accessible.
 You can always run the script manually off the pi or have it start with boot with systemd or crontab. What ended up working for me, I don't know why it was the only way, but I saved a bash file to the desktop called Startup.sh that just has the line to start the PiDisplay.py script.
 
 ```bash
