@@ -90,11 +90,13 @@ and in the editor put the line
 To start this on the avantco, you need to hit power, then heat twice to get to temperature. For some reason there are 17 options with temperature and only 12 with wattage. So either more range or more granularity is good.
 For the kiosk display: the big number on the top left is the current temperature, the target temperature is on the bottom left with the keypad for changing it. The number on the top right is the current "temperature target", it should correspond with whats shown on the screen of the induction heater. The on/off button determines whether the control is on/off, not the heat! This means that when you turn it off, the induction heater will just hold the current heat. To turn off the heater turn it down with the button. Finally the chunky exit button is self explanatory.
 Interacting with the web app:
+
 ![image](https://github.com/eamwind/BrewControlPi/assets/172992640/66db7242-2a88-4548-ba54-f67c86f0d172)
-The current temperature, updated ~ every second
-The setpoint temperature, read from the raspberry pi
+
+The current and setpoint temperature are pretty self-explanatory, these values are updated roughly every second
 An input to change the setpoint temperature and on/off status:
   To change setpoint temperature or on/off status you need to put in a setpoint temperature and either have the checkbox checked (to turn automation on) or unchecked (to turn automation off)
+The readout for the automation being on or off
 
 
 ## Modifications
