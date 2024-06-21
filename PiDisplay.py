@@ -5,6 +5,8 @@ import os
 import glob
 import time
 from RPi import GPIO
+from simple_pid import PID
+from random import randrange
 
 # Sets the appearance of the window
 # Supported modes : Light, Dark, System
@@ -20,66 +22,106 @@ ctk.set_default_color_theme("blue")
 appWidth, appHeight = 480, 320 #window dimensions should be screen dimensions, in pixels
 wattage = 3 # which step, in the wattages list, the wattage is set to initially
 wattages = [500,700,1000,1200,1400,1600,1800,2000,2300,2600,3000,3200,3500] #list of all wattages to cycle through
-temp_range = 5 # We can't apply a PWM here so this is just the "happy range"
+tempslist = list(range(140,480,20))
 is_on = False # When the application opens, we want it off
-img_on = 'o' # placeholders
-img_off = 'f'
-hogval = 0
 celsius = False # Set to true to switch to celsius, not 100% sure this will work
 phpfile = '/var/www/html/temps.txt' # location of the file which is shared with the webserver
-temphistory = '/home/edwin/temphistory.txt' #location of the file that will record the temperature history
+temphistory = 'temphistory.txt' #location of the file that will record the temperature history
 increasepin = 16
 decreasepin = 20
+sleeptime = 0.15
+setpoint = 150.
+global heater
+tempproben = 0
+pid_values = [1,0,0.01]
 
-#Setup GPIO pins for controlling the buttons
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(increasepin, GPIO.OUT)
-GPIO.output(increasepin,GPIO.HIGH)
-GPIO.setup(decreasepin, GPIO.OUT)
-GPIO.output(decreasepin,GPIO.HIGH)
+#Grab images
+img_on = ctk.CTkImage(Image.open("on.png"), size=(75, 30))
+img_off = ctk.CTkImage(Image.open("off.png"), size=(75, 30))
 
 # Important for using my display
 if os.environ.get('DISPLAY','') == '':
-    #print('no display found. Using :0.0')
     os.environ.__setitem__('DISPLAY', ':0.0')
 
-# Setup accessing the temperature sensor
-devices = glob.glob("/sys/bus/w1/devices/" + "28*")
-def read_temp(proben, decimals = 1):
-    probe = devices[proben] + "/w1_slave"
-    with open(probe, "r") as f:
+    
+# simplifies interacting with heater
+class Heater:
+    def __init__(self, celsius, increasepin, decreasepin, curwatt, probe, PIDv, setpoint):
+        #Setup basic values
+        self.unitc = celsius
+        self.incpin = increasepin
+        self.decpin = decreasepin
+        self.watt = curwatt
+        self.P = PIDv[0]
+        self.I = PIDv[1]
+        self.D = PIDv[2]
+        self.setpoint=setpoint
+
+        #Setup temperature probe
+        self.probe = probe
+        devices = glob.glob("/sys/bus/w1/devices/" + "28*")
+        self.probef = devices[self.probe] + "/w1_slave"
+        self.temp = self.read_temp()
+        
+        #Setup GPIO pins for controlling the buttons
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(increasepin, GPIO.OUT)
+        GPIO.output(increasepin,GPIO.HIGH)
+        GPIO.setup(decreasepin, GPIO.OUT)
+        GPIO.output(decreasepin,GPIO.HIGH)
+
+
+    def read_temp_raw(self,device_file):
+        f = open(device_file, 'r')
         lines = f.readlines()
-    while lines[0].strip()[-3:] != "YES":
-        time.sleep(0.2)
-        lines = read_temp_raw()
-    equals_pos = lines[1].find("t=")
-    if equals_pos != -1:
-        temp_string = lines[1][equals_pos+2:]
-        tempc = round(float(temp_string) / 1000.0, decimals)
-        tempf = round(9/5000.0*float(temp_string) + 32, decimals)
-    return(tempc, tempf)
+        f.close()
+        return lines
 
-def increase_wattage():
-    GPIO.output(increasepin,GPIO.LOW)
-    time.sleep(0.5)
-    GPIO.output(increasepin,GPIO.HIGH)
+    def read_temp(self, decimals = 1):
+        lines = self.read_temp_raw(self.probef)
+        while lines[0].strip()[-3:] != 'YES':
+            time.sleep(0.2)
+            lines = self.read_temp_raw(self.probef)
+        equals_pos = lines[1].find("t=")
+        if equals_pos != -1:
+            temp_string = lines[1][equals_pos+2:]
+            tempc = round(float(temp_string) / 1000.0, decimals)
+            tempf = round(9/5000.0*float(temp_string) + 32, decimals)
+        if self.unitc == True:
+            self.temp=tempc
+        else:
+            self.temp=tempf
+        return(self.temp)
 
-def decrease_wattage():
-    GPIO.output(decreasepin,GPIO.LOW)
-    time.sleep(0.5)
-    GPIO.output(decreasepin,GPIO.HIGH)
+    def step_wattage(self,up):
+        if up == True:
+            pin = increasepin
+        else:
+            pin = decreasepin
+        GPIO.output(pin,GPIO.LOW)
+        time.sleep(sleeptime)
+        GPIO.output(pin,GPIO.HIGH)
 
-'''
-these are useful for testing without being on the hardware connected to everything
-def read_temp(proben, decimals = 1):
-    return(100.0,212.0)
+    def set_wattage(self, newwattage):
+        move = round(newwattage - self.watt)
+        if move == 0:
+            return
+        moveup = False
+        if move > 0:
+            moveup = True
+        for i in range(abs(move)):
+            self.step_wattage(moveup)
+            time.sleep(sleeptime)
+        self.watt = newwattage
 
-def increase_wattage():
-    time.sleep(0.5)
+    def update(self,):
+        self.temp = self.read_temp()
+        pid = PID(self.P, self.I, self.D, setpoint=self.setpoint)
+        pid.output_limits = (0, (len(tempslist)-1))
+        power = round(pid(self.temp))
+        heater.set_wattage(power)
 
-def decrease_wattage():
-    time.sleep(0.5)
-'''
+        
 
 # Custom widget for the numpad input and target temperature
 class TempNumpad(ctk.CTkFrame):
@@ -191,88 +233,27 @@ class TempNumpad(ctk.CTkFrame):
         self.entry.delete(0, "end")
         self.entry.insert(0, str(float(value)))
 
-
 # Whole app class
 class App(ctk.CTk):
-    def getCurTemp(self, unitc):
-        #global temp
-        temp = read_temp(0,)
-        if unitc == True:
-            return(temp[0])
-        else:
-            return(temp[1])
+    def switch_off(self):
+        global is_on
+        global img_on
+        global img_off
+        self.on_button.configure(image = img_off, fg_color="Red")
+        is_on = False
 
-    def change_wattage(self,v):
-        global wattage
-        global wattages
-        if v == -1 and wattage > 0:
-            wattage +=v
-            decrease_wattage()
-        if v == 1 and wattage < (len(wattages)-1):
-            wattage +=v
-            increase_wattage()
+    def switch_on(self):
+        global is_on
+        global img_on
+        global img_off
+        self.on_button.configure(image = img_on, fg_color="Green")
+        is_on = True
 
-    def nupdate(self):
-        global temp_range
-        global wattages
-        global hogval
-        global celsius
-        global phpfile
-        global temphistory
-
-        # Update temperature
-        set_temp = self.setTempVal.get()
-        current_temp = self.getCurTemp(celsius)
-        if celsius == True:
-            self.curTempVal.configure(text=str(current_temp)+"°C" )
-        else:
-            self.curTempVal.configure(text=str(current_temp)+"°F" )
-
-        # Write current temperatures to history file
-        histvalues = '\n'+str(time.asctime()) + ', ' + str(set_temp) +', '+str(current_temp)
-        out = open(temphistory, "a")
-        out.write(histvalues)
-        out.close()
-
-        #Check php file for web updates
-        inp = open(phpfile, 'r')
-        phpcur, phpset, recentset = inp.read().splitlines()
-        try:
-            phpcur = float(phpcur)
-            phpset = float(phpset)
-        except:
-            pass
-        else:
-            if recentset == 'web':
-                set_temp = phpset
-                self.setTempVal.set(set_temp)
-        inp.close()
-        inp = open(phpfile, 'w')
-        inp.write((str(current_temp)+'\n'+str(set_temp)+'\n'+'local'))
-        inp.close()
-
-
-        # Check if it needs to change output
-        if is_on == True:
-            if current_temp < set_temp - (temp_range/2):
-                hogval+=1
-                if hogval > 1:
-                    self.change_wattage(1)
-                    hogval = 0
-            elif current_temp > set_temp + (temp_range/2):
-                hogval-=1
-                if hogval < -1:
-                    self.change_wattage(-1)
-                    hogval = 0
-            self.curWattVal.configure(text = str(wattages[wattage]))
-        #else:
-        #   self.curWattVal.configure(text = '0')
-
-        self.after(1000, self.nupdate)
-        
     # The layout of the window will be written
     # in the init function itself
     def __init__(self, *args, **kwargs):
+        global heater
+
         super().__init__(*args, **kwargs)
 
         # Sets the title of the window
@@ -296,7 +277,7 @@ class App(ctk.CTk):
         self.setTempVal.grid(row=1, column=0, rowspan=2, padx=20, pady=10, sticky="ew")
 
         # Wattage Entry
-        self.curWattVal = ctk.CTkLabel(self, text=str(wattages[wattage]), font = ('Arial', 48))
+        self.curWattVal = ctk.CTkLabel(self, text=str(tempslist[wattage]), font = ('Arial', 48))
         self.curWattVal.grid(row=0, column=2, padx=20, pady=10, sticky="ew")
 
         # Exit button
@@ -304,45 +285,83 @@ class App(ctk.CTk):
                                         height=70, font = ('Arial', 36), command = self.destroy)
         self.exitButton.grid(row=2, column=2,padx=20,pady=10)
 
+        # Setting up for on/off switch
+        def switch():
+            global is_on
+            if is_on:
+                self.switch_off()
+            else:
+                self.switch_on()
+
+        # On/Off Button
+        self.on_button = ctk.CTkButton(self, text= '', image = img_off, command = switch, width = 100, height = 70, fg_color="Red", hover = False)
+        self.on_button.grid(row=1, column=2, padx=20, pady=10, sticky="ew")
+        
+        heater=Heater(celsius,increasepin,decreasepin,wattage,tempproben,pid_values,150)
         self.nupdate()
 
-# Setting up for on/off switch
-def switch():
-    global is_on
-    global img_on
-    global img_off
-    global app
+    def nupdate(self):
+        global wattages
+        global celsius
+        global phpfile
+        global temphistory
+        global heater
+        global is_on
 
-    # Determine is on or off
-    if is_on:
-        app.on_button.configure(image = img_off, fg_color="Red")
-        is_on = False
-    else:
-        app.on_button.configure(image = img_on, fg_color="Green")
-        is_on = True
+        # Update temperature
+        set_temp = self.setTempVal.get()
+        heater.read_temp()
+        current_temp = heater.temp
+        if celsius == True:
+            self.curTempVal.configure(text=str(current_temp)+"°C" )
+        else:
+            self.curTempVal.configure(text=str(current_temp)+"°F" )
 
+        # Write current temperatures to history file
+        histvalues = '\n'+str(time.asctime()) + ', ' + str(set_temp) +', '+str(current_temp)
+        out = open(temphistory, "a")
+        out.write(histvalues)
+        out.close()
 
+        #Check php file for web updates
+        inp = open(phpfile, 'r')
+        phpcur, phpset, recentset, unitc, phpon = inp.read().splitlines()
+        try:
+            phpset = float(phpset)
+        except:
+            pass
+        else:
+            if recentset == 'web':
+                set_temp = phpset
+                self.setTempVal.set(set_temp)
+                if phpon == "True":
+                    self.switch_on()
+                else:
+                    self.switch_off()
+        inp.close()
+        inp = open(phpfile, 'w')
+        inp.write((str(current_temp)+'\n'+str(set_temp)+'\nlocal\n'+str(celsius)+'\n'+str(is_on)))
+        inp.close()
 
+        heater.setpoint = set_temp
+
+        if is_on == True:
+            heater.update()
+            self.curWattVal.configure(text=str(tempslist[heater.watt]))
+
+        self.after(1000, self.nupdate)
+
+# Main
 if __name__ == "__main__":
     #Overwrite temphistory and temps file
     nf = open(temphistory,'w')
     nf.write('Time, Target Temperature, Current Temperature')
     nf.close()
     nfi = open(phpfile, 'w')
-    nfi.write('70.0\n70.0\nlocal')
+    nfi.write('70.0\n70.0\nlocal\n'+str(celsius)+'\n'+str(is_on))
     nfi.close()
 
     #Initialize app
     app = App()
-
-    #Grab images
-    img_on = ctk.CTkImage(Image.open("on.png"), size=(75, 30))
-    img_off = ctk.CTkImage(Image.open("off.png"), size=(75, 30))
-
-    # On/Off Button
-    app.on_button = ctk.CTkButton(app, text= '', image = img_off, command = switch, width = 100, height = 70, fg_color="Red", hover = False)
-    app.on_button.grid(row=1, column=2, padx=20, pady=10, sticky="ew")
-
-    # Runs the app
     app.wm_attributes('-fullscreen', True)
     app.mainloop()
