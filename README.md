@@ -88,7 +88,8 @@ and in the editor put the line
 ```
 
 ## Use
-To start this on the avantco, you need to hit power, then heat twice to get to temperature. For some reason there are 17 options with temperature and only 12 with wattage. So either more range or more granularity is good.
+To start this on the avantco, you need to hit power, then heat once to get to wattage. A note: wattage works in a normal way, where 
+
 For the kiosk display: the big number on the top left is the current temperature, the target temperature is on the bottom left with the keypad for changing it. The number on the top right is the current "temperature target", it should correspond with whats shown on the screen of the induction heater. The on/off button determines whether the control is on/off, not the heat! This means that when you turn it off, the induction heater will just hold the current heat. To turn off the heater turn it down with the button. Finally the chunky exit button is self explanatory.
 Interacting with the web app:
 
