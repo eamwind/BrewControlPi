@@ -22,18 +22,19 @@ ctk.set_default_color_theme("blue")
 appWidth, appHeight = 480, 320 #window dimensions should be screen dimensions, in pixels
 wattage = 3 # which step, in the wattages list, the wattage is set to initially
 wattages = [500,700,1000,1200,1400,1600,1800,2000,2300,2600,3000,3200,3500] #list of all wattages to cycle through
-tempslist = list(range(140,480,20))
+tempslist = list(range(140,480,20)) # list of all temperatures to cycle through -- we now use this one
+usedlist = wattages
 is_on = False # When the application opens, we want it off
-celsius = False # Set to true to switch to celsius, not 100% sure this will work
+celsius = False # Set to true to switch to celsius
 phpfile = '/var/www/html/temps.txt' # location of the file which is shared with the webserver
 temphistory = 'temphistory.txt' #location of the file that will record the temperature history
-increasepin = 16
-decreasepin = 20
-sleeptime = 0.15
-setpoint = 150.
+increasepin = 16 #pin that runs to the optocoupler which controls the increase button
+decreasepin = 20 #pin that runs to the optocoupler which controls the decrease button
+sleeptime = 0.15 #how long to sleep when "pressing" the button
+setpoint = 150. #the initial setpoint
 global heater
-tempproben = 0
-pid_values = [1,0,0.01]
+tempproben = 0 #which probe number you have set, just in case you have multiple probes connected to the one pin
+pid_values = [2,0,0.01] #proportional, integral and derivative values for PID tuning, look up a guide on PID tuning and change these
 
 #Grab images
 img_on = ctk.CTkImage(Image.open("on.png"), size=(75, 30))
@@ -117,7 +118,7 @@ class Heater:
     def update(self,):
         self.temp = self.read_temp()
         pid = PID(self.P, self.I, self.D, setpoint=self.setpoint)
-        pid.output_limits = (0, (len(tempslist)-1))
+        pid.output_limits = (0, (len(usedlist)-1))
         power = round(pid(self.temp))
         heater.set_wattage(power)
 
@@ -277,7 +278,7 @@ class App(ctk.CTk):
         self.setTempVal.grid(row=1, column=0, rowspan=2, padx=20, pady=10, sticky="ew")
 
         # Wattage Entry
-        self.curWattVal = ctk.CTkLabel(self, text=str(tempslist[wattage]), font = ('Arial', 48))
+        self.curWattVal = ctk.CTkLabel(self, text=str(usedlist[wattage]), font = ('Arial', 48))
         self.curWattVal.grid(row=0, column=2, padx=20, pady=10, sticky="ew")
 
         # Exit button
@@ -347,7 +348,7 @@ class App(ctk.CTk):
 
         if is_on == True:
             heater.update()
-            self.curWattVal.configure(text=str(tempslist[heater.watt]))
+            self.curWattVal.configure(text=str(usedlist[heater.watt]))
 
         self.after(1000, self.nupdate)
 
